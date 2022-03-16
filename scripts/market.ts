@@ -18,6 +18,11 @@ async function swap() {
     params: [EtherHolder],
   });
 
+//   await network.provider.send("hardhat_setBalance", [
+//     etherSigner,
+//     "0x2000000000000000000000000000000000000",
+//   ])
+
 //   console.log(await etherSigner.getBalance());
 
   const provider = new ethers.providers.JsonRpcProvider(
@@ -73,14 +78,14 @@ async function swap() {
     },
   ];
   const addr = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419";
-  const btcAddr = "0xeE636E1f7A0A846EEc2385E729CeA7D1b339D40D";
+  const daiAddr = "0xeE636E1f7A0A846EEc2385E729CeA7D1b339D40D";
   const priceFeed = new ethers.Contract(
     addr,
     aggregatorV3InterfaceABI,
     provider
   );
   const priceFeed1 = new ethers.Contract(
-    btcAddr,
+    daiAddr,
     aggregatorV3InterfaceABI,
     provider
   );
@@ -89,6 +94,8 @@ async function swap() {
    const tx1 = Math.floor(Number((ethToUsd.answer.toString() / Math.pow(10, 8)).toFixed(2)));
    const tx2 = Math.floor(Number((daiToUsd.answer.toString() / Math.pow(10, 8)).toFixed(2)));
     console.log(tx1, tx2);
+
+  
 
     const swapContract = await ethers.getContractFactory("Swap");
     const swap = await swapContract.deploy();
