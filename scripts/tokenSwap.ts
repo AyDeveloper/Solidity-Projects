@@ -33,10 +33,10 @@ async function swap() {
   ])
 
    // @ts-ignore
-   await network.provider.send("hardhat_setBalance", [
-    daiHolder,
-    "0x2000000000000000000000000000000000000",
-  ])
+//    await network.provider.send("hardhat_setBalance", [
+//     daiHolder,
+//     "0x2000000000000000000000000000000000000",
+//   ])
 
   console.log(await etherSigner.getBalance());
 
@@ -111,55 +111,32 @@ async function swap() {
     console.log(tx1, tx2);
 
 
-    // const swapContract = await ethers.getContractFactory("Swap");
-    // const swap = await swapContract.deploy();
-    // await swap.deployed();
+    const swapContract = await ethers.getContractFactory("Swap");
+    const swap = await swapContract.deploy();
+    await swap.deployed();    
 
-    // console.log("Contract", swap.address);
-    
-    const swap = await ethers.getContractAt('Swap', "0x0ed64d01D0B4B655E410EF1441dD677B695639E7");
+    const option = {
+                     value: ethers.utils.parseEther('3.0')
+                   };
+
+    await swap.setPrice(tx1, tx2);
+    // console.log(await swap.ethUsdPrice());
+    // console.log(await swap.daiUsdPrice());
+    // console.log(await swap.getDaiQty("3000000000000000000"));
+    console.log("balance before is", await swap.getDaiBalance(EtherHolder));
     const daiContract = await ethers.getContractAt("IERC20", "0x6B175474E89094C44Da98b954EedeAC495271d0F");
-    const price = await swap.setPrice(tx1, tx2);
-    const price1 =  await swap.ethUsdPrice();
-    const price2 = await swap.daiUsdPrice();
-    const daiQty = await swap.getDaiQty();
-    const amount = Number(daiQty.toString()) / 100000;
-    // swap dai 
-    // const option =  ethers.utils.parseEther("1.0");
-
-     console.log(price1, price2);
-     // @ts-ignore
-    console.log(amount);
-
-    // // check daiBalance 
-    const daiBalance = await swap.getDaiBalance(EtherHolder);
-    console.log(`balance b4 is ${daiBalance}`);
-    etherSigner.sendTransaction({to: daiHolder, value: ethers.utils.parseEther("3.0")})
+    const vx = await swap.connect(etherSigner).swapEtherforDai(option)
     .then(async result => {
-      const value = result.value.toString();
-      const amountInEther = ethers.utils.formatEther( value );
-      console.log(amountInEther);
-      const usdAvail = Number(amountInEther.toString()) * Number(price1);
-      console.log(usdAvail);
-      const daiQty = Math.floor(usdAvail / Number(price2));
-      console.log(daiQty);
-  
-       const tx =  await daiContract.connect(daiSigner).transfer(EtherHolder, daiQty); 
-       const daiBalance2 = await swap.getDaiBalance(EtherHolder);
-       console.log(`balance after is ${daiBalance2}`);
-      //  console.log(tx);
-       
+      //@ts-ignore
+      const daiAmount = (await result.wait()).events[0].args[0];
+      // @ts-ignore
+        const tx =  await daiContract.connect(daiSigner).transfer(EtherHolder, daiAmount); 
+        const daiBalance2 = await swap.getDaiBalance(EtherHolder);
+        console.log(`balance after is ${daiBalance2}`);
     })
-    .catch(err => {
-      console.log(err);
-    })
-    
-   
-   
 
-    
-    
-   
+
+
     
     
 }

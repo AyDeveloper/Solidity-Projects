@@ -5,6 +5,20 @@ import "hardhat/console.sol";
 
 // https://ipfs.io/ipfs/QmdpAiDcSqYPdw7hJQnXwhk3TeqKhoz9Q8eiayuztqx7wQ
 
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.0;
+
+interface IERC20 {
+    function balanceOf(address _owner) external view returns(uint);
+    function approve(address spender, uint value) external;
+    function transfer(address to, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+}
+
+
+
+
+
 contract Greeter {
     string private greeting;
 

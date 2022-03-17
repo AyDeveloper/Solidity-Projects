@@ -7,8 +7,9 @@ contract Swap {
 
     uint public ethUsdPrice;
     uint public daiUsdPrice;
-    // address dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address dai = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+
+    event SwapEvent(uint _daiAmount);
+    address dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
     IERC20 daiContract = IERC20(dai);
 
@@ -18,20 +19,20 @@ contract Swap {
     }
 
     function swapEtherforDai() public payable {
-        // get use internal function to get amount in dai;
-        uint  daiAmount = ((getDaiQty()) / 100000);
-        // a function that approves this contract the price in dai;
-        daiContract.approve(address(this), daiAmount);
-        // a function that transfer the dai to msg.sender;
-        daiContract.transfer(msg.sender, daiAmount);(msg.sender, daiAmount);
+        require(msg.value > 0, "Input amount must be positive");
+        uint amountOfEther = msg.value;
+        uint daiAmount = getDaiQty(amountOfEther);
+        emit SwapEvent(daiAmount);
     }
 
-    function getDaiQty() public view returns(uint) {
-        return (ethUsdPrice / daiUsdPrice) * 100000; 
+    function getDaiQty(uint _amount) public view returns(uint) {
+        // get the eQuivalent of ether 
+        uint usdValue = _amount * ethUsdPrice;
+        return (usdValue / (daiUsdPrice * 10e17)); 
     } 
 
-    function getDaiBalance() public view returns(uint) {
-        return daiContract.balanceOf(msg.sender);
+    function getDaiBalance(address _addr) public view returns(uint) {
+        return daiContract.balanceOf(_addr);
     }
 
 
